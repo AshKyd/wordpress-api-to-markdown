@@ -1,11 +1,12 @@
 {
-  "name": "wordpress-to-markdown",
+  "name": "wordpress-api-to-markdown",
   "version": "1.0.0",
   "description": "",
   "main": "dist/cli/index.js",
   "scripts": {
     "build": "tsc cli/index.ts --outDir dist --resolveJsonModule --allowJs ",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepack": "npm run build"
   },
   "author": "",
   "license": "ISC",

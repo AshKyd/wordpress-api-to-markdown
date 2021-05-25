@@ -1,0 +1,6 @@
+.parcel-cache
+.vscode
+/cli
+/lib
+.prettierrc
+tsconfig.json
