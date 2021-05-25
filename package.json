@@ -2,7 +2,7 @@
   "name": "wordpress-api-to-markdown",
   "version": "1.0.1",
   "description": "",
-  "bin": "dist/cli/index.js",
+  "bin": "bin.js",
   "main": "dist/cli/index.js",
   "scripts": {
     "build": "tsc cli/index.ts --outDir dist --resolveJsonModule --allowJs ",
