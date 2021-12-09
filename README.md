@@ -17,3 +17,8 @@ markdown files in `./_posts/wordpress`
 
 Presently this tool _does not download images_, so the original Wordpress
 server will still be used to serve images.
+
+## Options
+
+- `--force-permalink` - write a permalink to the front matter. Used to work around
+  wonky permalink implementations (Personally I can never get Hexo to work right).

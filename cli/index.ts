@@ -15,6 +15,10 @@ program
   .option(
     "-o, --output <dir>",
     "dir to put markdown files. Defaults to ./source"
+  )
+  .option(
+    "-f, --force-permalinks",
+    "force writing the permalink field in front matter, for fiddly generators"
   );
 
 program.parse(process.argv);
@@ -28,4 +32,5 @@ if (!options.input) {
 syncWordpressToMarkdown({
   baseUrl: options.input,
   destDir: path.resolve(process.cwd(), options.output || "./source"),
+  forcePermalinks: options.forcePermalinks,
 });
