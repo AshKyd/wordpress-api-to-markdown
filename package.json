@@ -1,6 +1,6 @@
 {
   "name": "wordpress-api-to-markdown",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "bin": "dist/cli/index.js",
   "main": "dist/cli/index.js",
