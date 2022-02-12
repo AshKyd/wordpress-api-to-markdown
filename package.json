@@ -15,7 +15,7 @@
     "he": "^1.2.0",
     "isomorphic-fetch": "^3.0.0",
     "mkdirp": "^1.0.4",
-    "sharp": "^0.30.1",
+    "sharp": "^0.30.0",
     "yaml": "^1.10.2"
   },
   "devDependencies": {

@@ -2,7 +2,7 @@ const fetch = require("isomorphic-fetch");
 const fs = require("fs");
 const path = require("path");
 const sharp = require("sharp");
-
+const { Buffer } = require("buffer");
 /**
  * Resize an image
  * @param {object} options
@@ -13,7 +13,7 @@ const sharp = require("sharp");
  * @param {number} options.quality
  * @returns
  */
-function processImage({
+async function processImage({
   imageBuffer,
   outputFile,
   width,
@@ -74,13 +74,16 @@ async function processHtml({ html, renditions, imageDir, imagePublicDir }) {
     .map((imageHtml) => {
       return { imageHtml, src: imageHtml.match(/src="([^"]+)"/)?.[1] || "" };
     })
+    .filter(({ src }) => src.match(/https?:\/\//) && !src.includes("?"))
     .map(({ imageHtml, src }) => {
       const filename = src.match(/([^\/]+)\.\w+$/)?.[1];
 
       let theseRenditions = renditions;
 
       if (!src.match(/\.jpe?g$/i)) {
-        theseRenditions = [{ format: "original", width: 0, quality: 0 }];
+        theseRenditions = [
+          { format: "original", width: 0, quality: 0, outputDir: imageDir },
+        ];
       }
 
       theseRenditions = theseRenditions.map((rendition) => ({
@@ -92,14 +95,22 @@ async function processHtml({ html, renditions, imageDir, imagePublicDir }) {
             : `${filename}@${rendition.width}.${rendition.format}`,
       }));
 
-      const imagePromise = processImages(src, theseRenditions);
+      const imagePromise = processImages(src, theseRenditions).catch(
+        (e) => false
+      );
+
+      if (!imagePromise) {
+        return false;
+      }
+
       return {
         src,
         imageHtml,
         imagePromise,
         theseRenditions,
       };
-    });
+    })
+    .filter(Boolean);
 
   let newHtml = html;
   imageMaps.forEach(({ imageHtml, theseRenditions }) => {
