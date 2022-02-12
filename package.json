@@ -5,9 +5,7 @@
   "bin": "dist/cli/index.js",
   "main": "dist/cli/index.js",
   "scripts": {
-    "build": "tsc cli/index.ts --outDir dist --resolveJsonModule --allowJs ",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepack": "npm run build"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +15,7 @@
     "he": "^1.2.0",
     "isomorphic-fetch": "^3.0.0",
     "mkdirp": "^1.0.4",
+    "sharp": "^0.30.1",
     "yaml": "^1.10.2"
   },
   "devDependencies": {
