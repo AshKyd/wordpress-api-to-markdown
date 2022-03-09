@@ -40,12 +40,11 @@ async function processImage({
  * @param {Array<{ width: number, format: string, quality: number, outputDir: string, outputFile: string }>} renditions
  */
 async function processImages(image, renditions) {
-  console.log("processing", image);
   const response = await fetch(image);
   const imageBuffer = await response.buffer();
 
-  for (const rendition in renditions) {
-    const { width, format, quality, outputDir, outputFile } = rendition;
+  for (let i = 0; i < renditions.length; i++) {
+    const { width, format, quality, outputDir, outputFile } = renditions[i];
     const fullOutputFile = path.join(outputDir, outputFile);
     if (format === "original") {
       await fs.writeFileSync(fullOutputFile, imageBuffer);
@@ -106,8 +105,8 @@ async function processHtml({ html, renditions, imageDir, imagePublicDir }) {
 
   for (let i = 0; i < imageMaps.length; i++) {
     const imageMap = imageMaps[i];
-    await processImages(imageMap.src, imageMap.theseRenditions).catch(
-      (e) => false
+    await processImages(imageMap.src, imageMap.theseRenditions).catch((e) =>
+      console.error("error", e, imageMap.src)
     );
   }
 
