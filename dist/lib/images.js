@@ -1,9 +1,8 @@
 const fetch = require("isomorphic-fetch");
-const fs = require("fs/promises");
+const fs = require("fs");
 const path = require("path");
-const os = require("os");
-let i = 0;
-
+const sharp = require("sharp");
+const { Buffer } = require("buffer");
 /**
  * Resize an image
  * @param {object} options
@@ -21,33 +20,16 @@ async function processImage({
   format,
   quality = 80,
 }) {
-  const { execa } = await import("execa");
-  const tmpFileSrc = path.join(os.tmpdir(), `wordpress-api-to-markdown-${i++}`);
-  await fs.writeFile(tmpFileSrc, imageBuffer);
+  let transformer = sharp(imageBuffer).resize(width);
 
-  await execa("convert", [
-    tmpFileSrc,
-    "-resize",
-    width + ">",
-    "-quality",
-    String(quality),
-    outputFile,
-  ]);
+  if (format === "webp") {
+    transformer = transformer.webp({ quality });
+  }
+  if (format === "jpg") {
+    transformer = transformer.jpeg({ quality, mozjpeg: true });
+  }
 
-  console.log("outputting", outputFile);
-
-  await fs.unlink(tmpFileSrc);
-
-  // let transformer = sharp(imageBuffer).resize(width);
-
-  // if (format === "webp") {
-  //   transformer = transformer.webp({ quality });
-  // }
-  // if (format === "jpg") {
-  //   transformer = transformer.jpeg({ quality, mozjpeg: true });
-  // }
-
-  // return transformer.toFile(outputFile);
+  return transformer.toFile(outputFile);
 }
 
 /**
@@ -57,18 +39,14 @@ async function processImage({
  */
 async function processImages(image, renditions) {
   const response = await fetch(image);
-
-  if (response.status !== 200) {
-    console.error(`HTTP ${response.status} for ${image}`);
-    return;
-  }
   const imageBuffer = await response.buffer();
 
   return Promise.all(
     renditions.map(({ width, format, quality, outputDir, outputFile }) => {
       const fullOutputFile = path.join(outputDir, outputFile);
       if (format === "original") {
-        return fs.writeFile(fullOutputFile, imageBuffer);
+        fs.writeFileSync(fullOutputFile, imageBuffer);
+        return Promise.resolve();
       }
 
       return processImage({
