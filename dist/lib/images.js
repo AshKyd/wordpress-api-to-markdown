@@ -29,6 +29,8 @@ async function processImage({
     transformer = transformer.jpeg({ quality, mozjpeg: true });
   }
 
+  console.log("writing", outputFile);
+
   return transformer.toFile(outputFile);
 }
 
@@ -38,26 +40,25 @@ async function processImage({
  * @param {Array<{ width: number, format: string, quality: number, outputDir: string, outputFile: string }>} renditions
  */
 async function processImages(image, renditions) {
+  console.log("processing", image);
   const response = await fetch(image);
   const imageBuffer = await response.buffer();
 
-  return Promise.all(
-    renditions.map(({ width, format, quality, outputDir, outputFile }) => {
-      const fullOutputFile = path.join(outputDir, outputFile);
-      if (format === "original") {
-        fs.writeFileSync(fullOutputFile, imageBuffer);
-        return Promise.resolve();
-      }
-
-      return processImage({
+  for (const rendition in renditions) {
+    const { width, format, quality, outputDir, outputFile } = rendition;
+    const fullOutputFile = path.join(outputDir, outputFile);
+    if (format === "original") {
+      await fs.writeFileSync(fullOutputFile, imageBuffer);
+    } else {
+      await processImage({
         imageBuffer,
         outputFile: fullOutputFile,
         width,
         format,
         quality,
       });
-    })
-  );
+    }
+  }
 }
 
 /**
@@ -95,22 +96,20 @@ async function processHtml({ html, renditions, imageDir, imagePublicDir }) {
             : `${filename}@${rendition.width}.${rendition.format}`,
       }));
 
-      const imagePromise = processImages(src, theseRenditions).catch(
-        (e) => false
-      );
-
-      if (!imagePromise) {
-        return false;
-      }
-
       return {
         src,
         imageHtml,
-        imagePromise,
         theseRenditions,
       };
     })
     .filter(Boolean);
+
+  for (let i = 0; i < imageMaps.length; i++) {
+    const imageMap = imageMaps[i];
+    await processImages(imageMap.src, imageMap.theseRenditions).catch(
+      (e) => false
+    );
+  }
 
   let newHtml = html;
   imageMaps.forEach(({ imageHtml, theseRenditions }) => {
